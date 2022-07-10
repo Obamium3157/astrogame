@@ -2,9 +2,9 @@ var canvas = document.getElementById('canvas');
 var canvasContext = canvas.getContext('2d');
 
 var GAME = {
-    width: 500,
-    height: 500,
-    background: "#fff",
+    width: 1000,
+    height: 600,
+    background: "gray",
 }
 
 canvas.width = GAME.width;
