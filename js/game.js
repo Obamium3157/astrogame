@@ -9,19 +9,41 @@ const GAME = {
 
 const PLAYER = {
     x: 20,
-    y: 20,
+    y: 200,
     width: 50,
     height: 80,
     background: "red",
+    isJumping: false
 }
 
 canvas.width = GAME.width;
 canvas.height = GAME.height;
 
+initEventListener();
 play();
 
+function initEventListener() {
+    window.addEventListener("keydown", function (event) {
+        if(event.code === "KeyW") {
+            PLAYER.y -= 125;
+        }
+        if(event.code === "KeyA") {
+            PLAYER.x -= 15;
+        }
+        if(event.code === "KeyS") {
+            return;
+        }
+        if(event.code === "KeyD") {
+            PLAYER.x += 15;
+        }
+        if(event.code === "KeySpace") {
+            return;
+        }
+    })
+}
+
 function physics() {
-    PLAYER.y += 7;
+    PLAYER.y += 5;
 }
 
 function drawBackground() {
@@ -42,6 +64,7 @@ function drawFrame() {
 
 function play() {
     drawFrame();
-    physics();
+    if(!PLAYER.isJumping)
+        physics();
     requestAnimationFrame(play)
 }
