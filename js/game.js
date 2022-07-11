@@ -10,40 +10,50 @@ const GAME = {
 const PLAYER = {
     x: 20,
     y: 200,
+    moveSpeed: 5,
+    fallSpeed: 3,
     width: 50,
     height: 80,
+    jumpLength: 200,
     background: "red",
-    isJumping: false
+    moveType: 'none',
 }
 
 canvas.width = GAME.width;
 canvas.height = GAME.height;
 
 initEventListener();
+var jump_pos = 0;
 play();
 
 function initEventListener() {
     window.addEventListener("keydown", function (event) {
+        // let dt = getDeltaTime();
         if(event.code === "KeyW") {
-            PLAYER.y -= 125;
+            PLAYER.moveType = 'jump';
+            // PLAYER.y = 4 * PLAYER.jumpLength * Math.sin(Math.PI)
         }
         if(event.code === "KeyA") {
-            PLAYER.x -= 15;
+            PLAYER.moveType = 'left';
         }
         if(event.code === "KeyS") {
             return;
         }
         if(event.code === "KeyD") {
-            PLAYER.x += 15;
+            PLAYER.moveType = "right"
         }
         if(event.code === "KeySpace") {
             return;
+        }
+
+        if(!event.code) {
+            PLAYER.moveType = 'none';
         }
     })
 }
 
 function physics() {
-    PLAYER.y += 5;
+    PLAYER.y += PLAYER.fallSpeed;
 }
 
 function drawBackground() {
@@ -64,7 +74,23 @@ function drawFrame() {
 
 function play() {
     drawFrame();
-    if(!PLAYER.isJumping)
-        physics();
+    physics();
+    if(PLAYER.moveType === 'jump') {
+        if(jump_pos !== PLAYER.jumpLength) {
+            PLAYER.y -= 5;
+            jump_pos += 5;
+        }
+        if(jump_pos === PLAYER.jumpLength) {
+            jump_pos = 0;
+        }
+    }
+    if(PLAYER.moveType === 'left') {
+        PLAYER.x -= PLAYER.moveSpeed;
+    }
+    if(PLAYER.moveType === 'right') {
+        PLAYER.x += PLAYER.moveSpeed;
+    }
+
+
     requestAnimationFrame(play)
 }
