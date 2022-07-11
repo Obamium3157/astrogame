@@ -11,12 +11,21 @@ const PLAYER = {
     x: 20,
     y: 200,
     moveSpeed: 5,
-    fallSpeed: 3,
+    fallSpeed: 1,
     width: 50,
     height: 80,
+    canJump: true,
     jumpLength: 200,
-    background: "red",
+    background: "pink",
     moveType: 'none',
+}
+
+const PADDLE = {
+    x: 200,
+    y: 400,
+    width: 300,
+    height: 40,
+    color: "#fff",
 }
 
 canvas.width = GAME.width;
@@ -45,6 +54,9 @@ function initEventListener() {
         if(event.code === "KeySpace") {
             return;
         }
+        if(event.code === "KeyP") {
+            PLAYER.moveType = 'none';
+        }
 
         if(!event.code) {
             PLAYER.moveType = 'none';
@@ -66,21 +78,47 @@ function drawPlayer() {
     canvasContext.fillRect(PLAYER.x, PLAYER.y, PLAYER.width, PLAYER.height);
 }
 
+function drawPaddle() {
+    canvasContext.fillStyle = PADDLE.color;
+    canvasContext.fillRect(PADDLE.x, PADDLE.y, PADDLE.width, PADDLE.height);
+}
+
 function drawFrame() {
     canvasContext.clearRect(0, 0, GAME.width, GAME.height);
     drawBackground();
     drawPlayer();
+    drawPaddle();
+}
+
+function updatePlayer() {
+    /*FIXME: Починить коллизию с правым краем платформы!*/
+    // Проверка коллизии с платформой (наступил сверху)
+    if((PLAYER.y + PLAYER.height > PADDLE.y) && (PADDLE.x <= PLAYER.x && PLAYER.x <= PADDLE.x + PADDLE.width) && (PLAYER.x <= PADDLE.x + PADDLE.width)){
+        PLAYER.y = PADDLE.y - 2 * PADDLE.height;
+        PLAYER.canJump = true;
+    }
+    // Проверка коллизии с левым краем платформы
+     if(((PLAYER.x + PLAYER.width >= PADDLE.x) && (PLAYER.x + PLAYER.width < PADDLE.x + PADDLE.width/2))  && (PADDLE.y <= PLAYER.y+PLAYER.height-1) && (PADDLE.y+PADDLE.height > PLAYER.y)) {
+         PLAYER.x = PADDLE.x - PLAYER.width;
+     }
+
+    //  // Проверка коллизии с правым краем платформы
+    if(((PLAYER.x <= PADDLE.x+PADDLE.width) && (PLAYER.x > PADDLE.x + PADDLE.width/2)) && (PADDLE.y <= PLAYER.y+PLAYER.height-1) && (PADDLE.y+PADDLE.height > PLAYER.y)) {
+        PLAYER.x = 60;
+    }
 }
 
 function play() {
     drawFrame();
     physics();
+    updatePlayer();
     if(PLAYER.moveType === 'jump') {
         if(jump_pos !== PLAYER.jumpLength) {
-            PLAYER.y -= 5;
-            jump_pos += 5;
+            PLAYER.canJump = false
+            PLAYER.y -= 25;
+            jump_pos += 25;
         }
-        if(jump_pos === PLAYER.jumpLength) {
+        if(jump_pos === PLAYER.jumpLength && PLAYER.canJump) {
             jump_pos = 0;
         }
     }
@@ -90,7 +128,6 @@ function play() {
     if(PLAYER.moveType === 'right') {
         PLAYER.x += PLAYER.moveSpeed;
     }
-
 
     requestAnimationFrame(play)
 }
