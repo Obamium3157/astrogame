@@ -21,10 +21,11 @@ const PLAYER = {
 }
 
 const PADDLE = {
-    x: 200,
-    y: 400,
+    x: 10,
+    y: PLAYER.y+PLAYER.height,
     width: 300,
     height: 40,
+    moveSpeed: 2,
     color: "#fff",
 }
 
@@ -90,6 +91,10 @@ function drawFrame() {
     drawPaddle();
 }
 
+function move_paddle() {
+    PADDLE.x -= PADDLE.moveSpeed;
+}
+
 function updatePlayer() {
     /*FIXME: Починить коллизию с правым краем платформы!*/
     // Проверка коллизии с платформой (наступил сверху)
@@ -112,6 +117,7 @@ function play() {
     drawFrame();
     physics();
     updatePlayer();
+    move_paddle();
     if(PLAYER.moveType === 'jump') {
         if(jump_pos !== PLAYER.jumpLength) {
             PLAYER.canJump = false
