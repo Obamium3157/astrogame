@@ -1,4 +1,5 @@
 //TODO: Починить коллизию (персонаж не должен оказываться на платформе, если он под ней)
+//TODO: Доделать управление
 //TODO: Сделать механику стрельбы
 //TODO: Добавить противников
 //TODO: Добавить спрайты
@@ -20,8 +21,9 @@ const PLAYER = {
     width: 50,
     height: 80,
     canJump: true,
+    isInAir: false,
     jump_pos: 0,
-    jumpLength: 275, // 200
+    jumpLength: 325,
     background: "pink",
     moveType: 'none',
 }
@@ -58,8 +60,8 @@ var startPaddle = new Paddle();
 var secondPaddle = new Paddle();
 var thirdPaddle = new Paddle();
 
-startPaddle.y = PLAYER.y;
-startPaddle.x = PLAYER.x;
+startPaddle.y = PLAYER.y + 10;
+startPaddle.x = PLAYER.x - PLAYER.width/2;
 
 secondPaddle.x = GAME.width/2 - PADDLE_LAYOUT.width/2;
 secondPaddle.y = GAME.height/2;
@@ -84,14 +86,15 @@ function initEventListener() {
     window.addEventListener("keydown", function (event) {
         // let dt = getDeltaTime();
         if (event.code === "KeyW") {
-            PLAYER.moveType = 'jump';
-            // PLAYER.y = 4 * PLAYER.jumpLength * Math.sin(Math.PI)
+                PLAYER.moveType = 'jump';
         }
         if (event.code === "KeyA") {
             PLAYER.moveType = 'left';
         }
         if (event.code === "KeyS") {
-            return;
+            if(PLAYER.isInAir) {
+                PLAYER.moveType = 'down';
+            }
         }
         if (event.code === "KeyD") {
             PLAYER.moveType = "right"
@@ -140,11 +143,14 @@ function drawFrame() {
 
 function updatePlayer(paddle, x, y, width, height) {
     /*FIXME: Починить коллизию с правым краем платформы!*/
+
     // Проверка коллизии с платформой (наступил сверху)
-    if ((PLAYER.y + PLAYER.height > y) && (x <= PLAYER.x && PLAYER.x <= x + width) && (PLAYER.x <= x + width)) {
-        PLAYER.y = paddle.y - 2 * paddle.height;
+    if ((PLAYER.y + PLAYER.height > y && PLAYER.y <= y) && (x <= PLAYER.x && PLAYER.x <= x + width) && (PLAYER.x <= x + width)) {
+        PLAYER.y = y - 2 * height;
+        PLAYER.isInAir = false;
         PLAYER.canJump = true;
     }
+
     // Проверка коллизии с левым краем платформы
     if (((PLAYER.x + PLAYER.width >= x) && (PLAYER.x + PLAYER.width < x + width / 2)) && (y <= PLAYER.y + PLAYER.height - 1) && (y + height > PLAYER.y)) {
         PLAYER.x = x - PLAYER.width;
@@ -153,6 +159,16 @@ function updatePlayer(paddle, x, y, width, height) {
     //  // Проверка коллизии с правым краем платформы
     if (((PLAYER.x <= x + width) && (PLAYER.x > x + width / 2)) && (y <= PLAYER.y + PLAYER.height - 1) && (y + height > PLAYER.y)) {
         PLAYER.x = 60;
+    }
+
+    // Проверка коллизии с нижним краем платформы
+    if(PLAYER.y <= y+height && PLAYER.y > y && (x <= PLAYER.x && PLAYER.x <= x + width) && (PLAYER.x <= x + width)) {
+        PLAYER.y = y+height;
+    }
+
+    // Игрок в воздухе или нет?
+    if(PLAYER.y < y || PLAYER.y > y) {
+        PLAYER.isInAir = true;
     }
 }
 
@@ -184,6 +200,9 @@ function play() {
     }
     if (PLAYER.moveType === 'right') {
         PLAYER.x += PLAYER.moveSpeed;
+    }
+    if(PLAYER.moveType === 'down') {
+        PLAYER.y += PLAYER.fallSpeed*7;
     }
 
     requestAnimationFrame(play)
