@@ -4,62 +4,89 @@ const canvasContext = canvas.getContext('2d');
 const GAME = {
     width: 1000,
     height: 600,
-    background: "gray",
+    background: 'gray',
 }
 
 const PLAYER = {
     x: 20,
     y: 200,
     moveSpeed: 5,
-    fallSpeed: 1,
+    fallSpeed: 2,
     width: 50,
     height: 80,
     canJump: true,
-    jumpLength: 200,
+    jump_pos: 0,
+    jumpLength: 275, // 200
     background: "pink",
     moveType: 'none',
 }
 
-const PADDLE = {
-    x: 10,
-    y: PLAYER.y+PLAYER.height,
+const PADDLE_LAYOUT = {
+    x: GAME.width,
+    y: getRandomHeight(),
     width: 300,
     height: 40,
     moveSpeed: 2,
     color: "#fff",
 }
 
+class Paddle {
+    constructor() {
+        this.x = PADDLE_LAYOUT.x;
+        this.y = getRandomHeight();
+        this.width = PADDLE_LAYOUT.width;
+        this.height = PADDLE_LAYOUT.height;
+        this.moveSpeed = PADDLE_LAYOUT.moveSpeed;
+        this.color = PADDLE_LAYOUT.color;
+    }
+
+    move() {
+        this.x -= this.moveSpeed;
+    }
+}
+
 canvas.width = GAME.width;
 canvas.height = GAME.height;
 
+const paddles = [];
+var startPaddle = new Paddle();
+startPaddle.y = PLAYER.y;
+startPaddle.x = PLAYER.x;
+paddles.push(startPaddle);
+paddles.push(new Paddle());
+
 initEventListener();
-var jump_pos = 0;
 play();
+
+function getRandomHeight() {
+    let arr = [100, 150, 200, 250, 300, 350, 400, 450]
+    return arr[Math.floor(Math.random() * arr.length)]
+}
 
 function initEventListener() {
     window.addEventListener("keydown", function (event) {
         // let dt = getDeltaTime();
-        if(event.code === "KeyW") {
+        if (event.code === "KeyW") {
             PLAYER.moveType = 'jump';
             // PLAYER.y = 4 * PLAYER.jumpLength * Math.sin(Math.PI)
         }
-        if(event.code === "KeyA") {
+        if (event.code === "KeyA") {
             PLAYER.moveType = 'left';
         }
-        if(event.code === "KeyS") {
+        if (event.code === "KeyS") {
             return;
         }
-        if(event.code === "KeyD") {
+        if (event.code === "KeyD") {
             PLAYER.moveType = "right"
         }
-        if(event.code === "KeySpace") {
+        if (event.code === "KeySpace") {
             return;
         }
-        if(event.code === "KeyP") {
+        if (event.code === "KeyP") {
             PLAYER.moveType = 'none';
         }
 
-        if(!event.code) {
+        if (!event.code) {
             PLAYER.moveType = 'none';
         }
     })
@@ -80,8 +107,11 @@ function drawPlayer() {
 }
 
 function drawPaddle() {
-    canvasContext.fillStyle = PADDLE.color;
-    canvasContext.fillRect(PADDLE.x, PADDLE.y, PADDLE.width, PADDLE.height);
+    for(let i = 0; i < paddles.length; i++) {
+        let paddle = paddles[i]
+        canvasContext.fillStyle = paddle.color;
+        canvasContext.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    }
 }
 
 function drawFrame() {
@@ -91,47 +121,51 @@ function drawFrame() {
     drawPaddle();
 }
 
-function move_paddle() {
-    PADDLE.x -= PADDLE.moveSpeed;
-}
-
-function updatePlayer() {
+function updatePlayer(paddle, x, y, width, height) {
     /*FIXME: Починить коллизию с правым краем платформы!*/
     // Проверка коллизии с платформой (наступил сверху)
-    if((PLAYER.y + PLAYER.height > PADDLE.y) && (PADDLE.x <= PLAYER.x && PLAYER.x <= PADDLE.x + PADDLE.width) && (PLAYER.x <= PADDLE.x + PADDLE.width)){
-        PLAYER.y = PADDLE.y - 2 * PADDLE.height;
+    if ((PLAYER.y + PLAYER.height > y) && (x <= PLAYER.x && PLAYER.x <= x + width) && (PLAYER.x <= x + width)) {
+        PLAYER.y = paddle.y - 2 * paddle.height;
         PLAYER.canJump = true;
     }
     // Проверка коллизии с левым краем платформы
-     if(((PLAYER.x + PLAYER.width >= PADDLE.x) && (PLAYER.x + PLAYER.width < PADDLE.x + PADDLE.width/2))  && (PADDLE.y <= PLAYER.y+PLAYER.height-1) && (PADDLE.y+PADDLE.height > PLAYER.y)) {
-         PLAYER.x = PADDLE.x - PLAYER.width;
-     }
+    if (((PLAYER.x + PLAYER.width >= x) && (PLAYER.x + PLAYER.width < x + width / 2)) && (y <= PLAYER.y + PLAYER.height - 1) && (y + height > PLAYER.y)) {
+        PLAYER.x = x - PLAYER.width;
+    }
 
     //  // Проверка коллизии с правым краем платформы
-    if(((PLAYER.x <= PADDLE.x+PADDLE.width) && (PLAYER.x > PADDLE.x + PADDLE.width/2)) && (PADDLE.y <= PLAYER.y+PLAYER.height-1) && (PADDLE.y+PADDLE.height > PLAYER.y)) {
+    if (((PLAYER.x <= x + width) && (PLAYER.x > x + width / 2)) && (y <= PLAYER.y + PLAYER.height - 1) && (y + height > PLAYER.y)) {
         PLAYER.x = 60;
     }
 }
 
 function play() {
-    drawFrame();
+    for(let i = 0; i < paddles.length; i++) {
+        updatePlayer(paddles[i], paddles[i].x, paddles[i].y, paddles[i].width, paddles[i].height)
+        drawFrame();
+        paddles[i].move();
+
+        if(paddles[i].x + paddles[i].width < 0) {
+            paddles[i].x = GAME.width;
+            paddles[i].y = getRandomHeight();
+        }
+
+    }
     physics();
-    updatePlayer();
-    move_paddle();
-    if(PLAYER.moveType === 'jump') {
-        if(jump_pos !== PLAYER.jumpLength) {
+    if (PLAYER.moveType === 'jump') {
+        if (PLAYER.jump_pos !== PLAYER.jumpLength) {
             PLAYER.canJump = false
             PLAYER.y -= 25;
-            jump_pos += 25;
+            PLAYER.jump_pos += 25;
         }
-        if(jump_pos === PLAYER.jumpLength && PLAYER.canJump) {
-            jump_pos = 0;
+        if (PLAYER.jump_pos === PLAYER.jumpLength && PLAYER.canJump) {
+            PLAYER.jump_pos = 0;
         }
     }
-    if(PLAYER.moveType === 'left') {
+    if (PLAYER.moveType === 'left') {
         PLAYER.x -= PLAYER.moveSpeed;
     }
-    if(PLAYER.moveType === 'right') {
+    if (PLAYER.moveType === 'right') {
         PLAYER.x += PLAYER.moveSpeed;
     }
 
