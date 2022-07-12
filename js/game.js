@@ -1,3 +1,8 @@
+//TODO: Починить коллизию (персонаж не должен оказываться на платформе, если он под ней)
+//TODO: Сделать механику стрельбы
+//TODO: Добавить противников
+//TODO: Добавить спрайты
+
 const canvas = document.getElementById('canvas');
 const canvasContext = canvas.getContext('2d');
 
@@ -50,9 +55,21 @@ canvas.height = GAME.height;
 
 const paddles = [];
 var startPaddle = new Paddle();
+var secondPaddle = new Paddle();
+var thirdPaddle = new Paddle();
+
 startPaddle.y = PLAYER.y;
 startPaddle.x = PLAYER.x;
+
+secondPaddle.x = GAME.width/2 - PADDLE_LAYOUT.width/2;
+secondPaddle.y = GAME.height/2;
+
+thirdPaddle.x = secondPaddle.x + secondPaddle.width;
+thirdPaddle.y = 450;
+
 paddles.push(startPaddle);
+paddles.push(secondPaddle);
+paddles.push(thirdPaddle);
 paddles.push(new Paddle());
 
 initEventListener();
