@@ -24,6 +24,7 @@ const PLAYER = {
     jumpLength: 325,
     background: "pink",
     moveType: 'none',
+    attackRange: 70,
     score: 0,
 }
 
@@ -165,10 +166,9 @@ function drawEnemy() {
                 canvasContext.fillRect(e.x, e.y, e.width, e.height);
                 updateEnemy(e.x, e.y, e.width, e.height);
 
-                if(PLAYER.moveType === 'punch' && PLAYER.x <= e.x && PLAYER.y === e.y) {
+                if(PLAYER.moveType === 'punch' && (PLAYER.x + PLAYER.width + PLAYER.attackRange >= e.x || PLAYER.x - PLAYER.attackRange >= e.x + e.width) && PLAYER.y === e.y) {
                     e.hp--;
                     console.log(e.hp);
-                    console.log('ouch');
                     if(e.hp <= 0 && Math.floor(Math.random() * 5) === 0) {
                         paddle.hasEnemy = false;
                         e.isAlive = false;
@@ -230,7 +230,7 @@ function updatePlayer(paddle, x, y, width, height) {
 
     //  // Проверка коллизии с правым краем платформы
     if (((PLAYER.x <= x + width) && (PLAYER.x > x + width / 2)) && (y <= PLAYER.y + PLAYER.height - 1) && (y + height > PLAYER.y)) {
-        PLAYER.x = 60;
+        PLAYER.x = x + width;
     }
 
     // Проверка коллизии с нижним краем платформы
