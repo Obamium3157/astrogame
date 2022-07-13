@@ -9,6 +9,7 @@ const GAME = {
     width: 1000,
     height: 600,
     background: 'gray',
+    isOver: false,
 }
 
 const PLAYER = {
@@ -152,7 +153,21 @@ function drawPaddle() {
             let e = new Enemy(paddle.x + paddle.width / 2, paddle.y - PLAYER.height);
             canvasContext.fillStyle = e.color;
             canvasContext.fillRect(e.x, e.y, e.width, e.height);
+            updateEnemy(e.x, e.y, e.width, e.height);
         }
+    }
+}
+
+function updateEnemy(x, y, width, height) {
+    // if((PLAYER.x === x || PLAYER.x + PLAYER.width === x || PLAYER.x === x + width) && (PLAYER.y === y || PLAYER.y + PLAYER.height === y)) {
+    //     GAME.isOver = true;
+    // }
+    if (
+        // (PLAYER.x === x || PLAYER.x + PLAYER.width === x || PLAYER.x === x + width)
+        ((PLAYER.x >= x && x + width >= PLAYER.x) || (PLAYER.x + PLAYER.width >= x && x + width >= PLAYER.x))
+        && (PLAYER.y === y || (PLAYER.y + PLAYER.height >= y && PLAYER.y + PLAYER.height <= y + height))
+    ) {
+        GAME.isOver = true;
     }
 }
 
@@ -192,9 +207,18 @@ function updatePlayer(paddle, x, y, width, height) {
     if(PLAYER.y < y || PLAYER.y > y) {
         PLAYER.isInAir = true;
     }
+
+
+    // Если игрок за границами экрана:
+    if(PLAYER.y > GAME.height || PLAYER.x + PLAYER.width < 0) {
+        GAME.isOver = true;
+    }
 }
 
 function play() {
+    if(GAME.isOver) {
+        return;
+    }
     for(let i = 0; i < paddles.length; i++) {
         updatePlayer(paddles[i], paddles[i].x, paddles[i].y, paddles[i].width, paddles[i].height)
         drawFrame();
