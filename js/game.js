@@ -1,4 +1,3 @@
-//TODO: Сделать механику атаки ближнего боя
 //TODO: Добавить спрайты
 
 const canvas = document.getElementById('canvas');
