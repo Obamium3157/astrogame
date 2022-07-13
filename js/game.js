@@ -1,5 +1,3 @@
-//TODO: Починить коллизию (персонаж не должен оказываться на платформе, если он под ней)
-//TODO: Доделать управление
 //TODO: Сделать механику стрельбы
 //TODO: Добавить противников
 //TODO: Добавить спрайты
@@ -45,10 +43,22 @@ class Paddle {
         this.height = PADDLE_LAYOUT.height;
         this.moveSpeed = PADDLE_LAYOUT.moveSpeed;
         this.color = PADDLE_LAYOUT.color;
+
+        this.hasEnemy = generateEnemy();
     }
 
     move() {
         this.x -= this.moveSpeed;
+    }
+}
+
+class Enemy {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = PLAYER.width;
+        this.height = PLAYER.height;
+        this.color = 'red';
     }
 }
 
@@ -62,6 +72,8 @@ var thirdPaddle = new Paddle();
 
 startPaddle.y = PLAYER.y + 10;
 startPaddle.x = PLAYER.x - PLAYER.width/2;
+
+startPaddle.hasEnemy = false;
 
 secondPaddle.x = GAME.width/2 - PADDLE_LAYOUT.width/2;
 secondPaddle.y = GAME.height/2;
@@ -80,6 +92,10 @@ play();
 function getRandomHeight() {
     let arr = [100, 150, 200, 250, 300, 350, 400, 450]
     return arr[Math.floor(Math.random() * arr.length)]
+}
+
+function generateEnemy() {
+    return Math.floor(Math.random() * 2) === 0;
 }
 
 function initEventListener() {
@@ -131,6 +147,12 @@ function drawPaddle() {
         let paddle = paddles[i]
         canvasContext.fillStyle = paddle.color;
         canvasContext.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+
+        if(paddle.hasEnemy) {
+            let e = new Enemy(paddle.x + paddle.width / 2, paddle.y - PLAYER.height);
+            canvasContext.fillStyle = e.color;
+            canvasContext.fillRect(e.x, e.y, e.width, e.height);
+        }
     }
 }
 
@@ -181,6 +203,7 @@ function play() {
         if(paddles[i].x + paddles[i].width < 0) {
             paddles[i].x = GAME.width;
             paddles[i].y = getRandomHeight();
+            paddles[i].hasEnemy = generateEnemy();
         }
 
     }
