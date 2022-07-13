@@ -1,4 +1,4 @@
-//TODO: Сделать механику стрельбы
+//TODO: Сделать механику атаки ближнего боя
 //TODO: Добавить спрайты
 
 const canvas = document.getElementById('canvas');
@@ -24,6 +24,7 @@ const PLAYER = {
     jumpLength: 325,
     background: "pink",
     moveType: 'none',
+    score: 0,
 }
 
 const PADDLE_LAYOUT = {
@@ -60,7 +61,7 @@ class Enemy {
         this.height = PLAYER.height;
         this.color = 'red';
 
-        this.hp = 5;
+        this.hp = 1;
         this.isAlive = true;
     }
 }
@@ -116,10 +117,10 @@ function initEventListener() {
             }
         }
         if (event.code === "KeyD") {
-            PLAYER.moveType = "right"
+            PLAYER.moveType = "right";
         }
-        if (event.code === "KeySpace") {
-            return;
+        if (event.keyCode === 32) {
+            PLAYER.moveType = 'punch'
         }
         if (event.code === "KeyP") {
             PLAYER.moveType = 'none';
@@ -150,6 +151,12 @@ function drawPaddle() {
         let paddle = paddles[i]
         canvasContext.fillStyle = paddle.color;
         canvasContext.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    }
+}
+
+function drawEnemy() {
+    for(let i = 0; i < paddles.length; i++) {
+        let paddle = paddles[i];
 
         if(paddle.hasEnemy) {
             let e = new Enemy(paddle.x + paddle.width / 2, paddle.y - PLAYER.height);
@@ -157,6 +164,22 @@ function drawPaddle() {
                 canvasContext.fillStyle = e.color;
                 canvasContext.fillRect(e.x, e.y, e.width, e.height);
                 updateEnemy(e.x, e.y, e.width, e.height);
+
+                if(PLAYER.moveType === 'punch' && PLAYER.x <= e.x && PLAYER.y === e.y) {
+                    e.hp--;
+                    console.log(e.hp);
+                    console.log('ouch');
+                    if(e.hp <= 0 && Math.floor(Math.random() * 5) === 0) {
+                        paddle.hasEnemy = false;
+                        e.isAlive = false;
+                        PLAYER.score += 100;
+                        PLAYER.moveType = 'none';
+                    }
+                    else {
+                        console.log('Промах!');
+                        PLAYER.moveType = 'none';
+                    }
+                }
             }
         }
     }
@@ -171,11 +194,19 @@ function updateEnemy(x, y, width, height) {
     }
 }
 
+function drawScore() {
+    canvasContext.fillStyle = 'white';
+    canvasContext.font = '32px Poppins';
+    canvasContext.fillText(PLAYER.score, 20, 50);
+}
+
 function drawFrame() {
     canvasContext.clearRect(0, 0, GAME.width, GAME.height);
     drawBackground();
     drawPlayer();
     drawPaddle();
+    drawEnemy();
+    drawScore();
 }
 
 function updatePlayer(paddle, x, y, width, height) {
@@ -186,11 +217,15 @@ function updatePlayer(paddle, x, y, width, height) {
         PLAYER.y = y - 2 * height;
         PLAYER.isInAir = false;
         PLAYER.canJump = true;
+        if(PLAYER.moveType === 'down') {
+            PLAYER.moveType = 'none';
+        }
     }
 
     // Проверка коллизии с левым краем платформы
     if (((PLAYER.x + PLAYER.width >= x) && (PLAYER.x + PLAYER.width < x + width / 2)) && (y <= PLAYER.y + PLAYER.height - 1) && (y + height > PLAYER.y)) {
         PLAYER.x = x - PLAYER.width;
+        PLAYER.canJump = true;
     }
 
     //  // Проверка коллизии с правым краем платформы
@@ -247,6 +282,7 @@ function play() {
     }
     if (PLAYER.moveType === 'right') {
         PLAYER.x += PLAYER.moveSpeed;
+        PLAYER.score++;
     }
     if(PLAYER.moveType === 'down') {
         PLAYER.y += PLAYER.fallSpeed*7;
