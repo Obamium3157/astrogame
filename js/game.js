@@ -1,5 +1,4 @@
 //TODO: Сделать механику стрельбы
-//TODO: Добавить противников
 //TODO: Добавить спрайты
 
 const canvas = document.getElementById('canvas');
@@ -60,6 +59,9 @@ class Enemy {
         this.width = PLAYER.width;
         this.height = PLAYER.height;
         this.color = 'red';
+
+        this.hp = 5;
+        this.isAlive = true;
     }
 }
 
@@ -151,19 +153,17 @@ function drawPaddle() {
 
         if(paddle.hasEnemy) {
             let e = new Enemy(paddle.x + paddle.width / 2, paddle.y - PLAYER.height);
-            canvasContext.fillStyle = e.color;
-            canvasContext.fillRect(e.x, e.y, e.width, e.height);
-            updateEnemy(e.x, e.y, e.width, e.height);
+            if(e.isAlive) {
+                canvasContext.fillStyle = e.color;
+                canvasContext.fillRect(e.x, e.y, e.width, e.height);
+                updateEnemy(e.x, e.y, e.width, e.height);
+            }
         }
     }
 }
 
 function updateEnemy(x, y, width, height) {
-    // if((PLAYER.x === x || PLAYER.x + PLAYER.width === x || PLAYER.x === x + width) && (PLAYER.y === y || PLAYER.y + PLAYER.height === y)) {
-    //     GAME.isOver = true;
-    // }
     if (
-        // (PLAYER.x === x || PLAYER.x + PLAYER.width === x || PLAYER.x === x + width)
         ((PLAYER.x >= x && x + width >= PLAYER.x) || (PLAYER.x + PLAYER.width >= x && x + width >= PLAYER.x))
         && (PLAYER.y === y || (PLAYER.y + PLAYER.height >= y && PLAYER.y + PLAYER.height <= y + height))
     ) {
