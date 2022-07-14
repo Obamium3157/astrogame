@@ -27,9 +27,10 @@
     </div>
 
 <script>
-    var highScore = localStorage.getItem('highScore');
+    var highScore = parseInt(localStorage.getItem('high'));
     if(!highScore) {
-        document.getElementById('high').innerHTML = 'High score: 0';
+        localStorage.setItem('high', 0);
+        document.getElementById('high').innerHTML = 'High score: ' + highScore;
     }
     else {
         document.getElementById('high').innerHTML = 'High score: ' + highScore;

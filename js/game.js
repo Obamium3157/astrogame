@@ -25,6 +25,7 @@ const PLAYER = {
     moveType: 'none',
     attackRange: 70,
     score: 0,
+    high_score: localStorage.getItem('high'),
     img: new Image(),
     imgSrc: '/img/Player-Right.png',
 }
@@ -272,6 +273,7 @@ function updatePlayer(paddle, x, y, width, height) {
 
 function play() {
     if(GAME.isOver) {
+        window.open('start.html');
         return;
     }
     for(let i = 0; i < paddles.length; i++) {
@@ -315,6 +317,12 @@ function play() {
         PLAYER.img.src = '/img/Player-Right.png';
         PLAYER.score++;
     }
+
+    if(PLAYER.score > PLAYER.high_score) {
+        PLAYER.high_score = PLAYER.score;
+        localStorage.setItem('high', PLAYER.high_score);
+    }
+
 
     requestAnimationFrame(play)
 }
