@@ -20,13 +20,13 @@ const PLAYER = {
     canJump: true,
     isInAir: false,
     jump_pos: 0,
-    jumpLength: 325,
+    jumpLength: 200,
     background: "pink",
     moveType: 'none',
     attackRange: 70,
     score: 0,
     img: new Image(),
-    imgSrc: '/img/Player.png',
+    imgSrc: '/img/Player.jpeg',
 }
 PLAYER.img.src = PLAYER.imgSrc;
 
@@ -179,8 +179,6 @@ function drawEnemy() {
             e.img.src = e.imgSrc;
 
             if(e.isAlive) {
-                // canvasContext.fillStyle = e.color;
-                // canvasContext.fillRect(e.x, e.y, e.width, e.height);
                 canvasContext.drawImage(e.img, e.x, e.y);
                 updateEnemy(e.x, e.y, e.width, e.height);
 
@@ -313,6 +311,7 @@ function play() {
         PLAYER.score++;
     }
     if(PLAYER.moveType === 'none') {
+        PLAYER.img.src = '/img/Player-Right.png';
         PLAYER.score++;
     }
 
