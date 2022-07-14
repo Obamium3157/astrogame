@@ -6,7 +6,7 @@ const canvasContext = canvas.getContext('2d');
 const GAME = {
     width: 1000,
     height: 600,
-    background: 'gray',
+    background: new Image(),
     isOver: false,
 }
 
@@ -25,6 +25,16 @@ const PLAYER = {
     moveType: 'none',
     attackRange: 70,
     score: 0,
+    img: new Image(),
+    imgSrc: '/img/Player.png',
+}
+PLAYER.img.src = PLAYER.imgSrc;
+
+const PLAYER_MOVE = {
+    img: new Image(),
+    imgIsLoad: false,
+    count: 0,
+    size: 50,
 }
 
 const PADDLE_LAYOUT = {
@@ -90,6 +100,7 @@ paddles.push(secondPaddle);
 paddles.push(thirdPaddle);
 paddles.push(new Paddle());
 
+initAnimation();
 initEventListener();
 play();
 
@@ -100,6 +111,13 @@ function getRandomHeight() {
 
 function generateEnemy() {
     return Math.floor(Math.random() * 2) === 0;
+}
+
+function initAnimation() {
+    PLAYER_MOVE.img.src = 'img/Player.png';
+    PLAYER_MOVE.img.onload = () => {
+        PLAYER_MOVE.imgIsLoad = true;
+    }
 }
 
 function initEventListener() {
@@ -136,14 +154,10 @@ function physics() {
     PLAYER.y += PLAYER.fallSpeed;
 }
 
-function drawBackground() {
-    canvasContext.fillStyle = GAME.background;
-    canvasContext.fillRect(0, 0, GAME.width, GAME.height);
-}
-
 function drawPlayer() {
     canvasContext.fillStyle = PLAYER.background;
     canvasContext.fillRect(PLAYER.x, PLAYER.y, PLAYER.width, PLAYER.height);
+    // canvasContext.drawImage(PLAYER.imgSrc, 0, 0, PLAYER.width, PLAYER.height);
 }
 
 function drawPaddle() {
@@ -199,9 +213,14 @@ function drawScore() {
     canvasContext.fillText(PLAYER.score, 20, 50);
 }
 
+function drawAnimation() {
+    if(PLAYER_MOVE.imgIsLoad) {
+        canvasContext.drawImage(PLAYER_MOVE, PLAYER.x, PLAYER.y);
+    }
+}
+
 function drawFrame() {
     canvasContext.clearRect(0, 0, GAME.width, GAME.height);
-    drawBackground();
     drawPlayer();
     drawPaddle();
     drawEnemy();
@@ -271,6 +290,7 @@ function play() {
             PLAYER.canJump = false
             PLAYER.y -= 25;
             PLAYER.jump_pos += 25;
+            PLAYER.score++;
         }
         if (PLAYER.jump_pos === PLAYER.jumpLength && PLAYER.canJump) {
             PLAYER.jump_pos = 0;
@@ -285,6 +305,7 @@ function play() {
     }
     if(PLAYER.moveType === 'down') {
         PLAYER.y += PLAYER.fallSpeed*7;
+        PLAYER.score++;
     }
 
     requestAnimationFrame(play)
