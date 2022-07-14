@@ -20,13 +20,13 @@ const PLAYER = {
     canJump: true,
     isInAir: false,
     jump_pos: 0,
-    jumpLength: 200,
+    jumpLength: 250,
     background: "pink",
     moveType: 'none',
     attackRange: 70,
     score: 0,
     img: new Image(),
-    imgSrc: '/img/Player.jpeg',
+    imgSrc: '/img/Player-Right.png',
 }
 PLAYER.img.src = PLAYER.imgSrc;
 
@@ -183,6 +183,7 @@ function drawEnemy() {
                 updateEnemy(e.x, e.y, e.width, e.height);
 
                 if(PLAYER.moveType === 'punch' && (PLAYER.x + PLAYER.width + PLAYER.attackRange >= e.x || PLAYER.x - PLAYER.attackRange >= e.x + e.width) && PLAYER.y === e.y) {
+
                     e.hp--;
                     console.log(e.hp);
                     if(e.hp <= 0 && Math.floor(Math.random() * 5) === 0) {
@@ -211,7 +212,7 @@ function updateEnemy(x, y, width, height) {
 }
 
 function drawScore() {
-    canvasContext.fillStyle = 'white';
+    canvasContext.fillStyle = 'yellow';
     canvasContext.font = '32px Poppins';
     canvasContext.fillText(PLAYER.score, 20, 50);
 }
