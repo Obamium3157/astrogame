@@ -70,6 +70,8 @@ class Enemy {
         this.width = PLAYER.width;
         this.height = PLAYER.height;
         this.color = 'red';
+        this.img = new Image();
+        this.imgSrc = '/img/Enemy1.png';
 
         this.hp = 1;
         this.isAlive = true;
@@ -155,14 +157,14 @@ function physics() {
 }
 
 function drawPlayer() {
-    canvasContext.fillStyle = PLAYER.background;
-    canvasContext.fillRect(PLAYER.x, PLAYER.y, PLAYER.width, PLAYER.height);
-    // canvasContext.drawImage(PLAYER.imgSrc, 0, 0, PLAYER.width, PLAYER.height);
+    // canvasContext.fillStyle = PLAYER.background;
+    canvasContext.drawImage(PLAYER.img, PLAYER.x, PLAYER.y);
+    // canvasContext.fillRect(PLAYER.x, PLAYER.y, PLAYER.width, PLAYER.height);
 }
 
 function drawPaddle() {
     for(let i = 0; i < paddles.length; i++) {
-        let paddle = paddles[i]
+        let paddle = paddles[i];
         canvasContext.fillStyle = paddle.color;
         canvasContext.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
     }
@@ -174,9 +176,12 @@ function drawEnemy() {
 
         if(paddle.hasEnemy) {
             let e = new Enemy(paddle.x + paddle.width / 2, paddle.y - PLAYER.height);
+            e.img.src = e.imgSrc;
+
             if(e.isAlive) {
-                canvasContext.fillStyle = e.color;
-                canvasContext.fillRect(e.x, e.y, e.width, e.height);
+                // canvasContext.fillStyle = e.color;
+                // canvasContext.fillRect(e.x, e.y, e.width, e.height);
+                canvasContext.drawImage(e.img, e.x, e.y);
                 updateEnemy(e.x, e.y, e.width, e.height);
 
                 if(PLAYER.moveType === 'punch' && (PLAYER.x + PLAYER.width + PLAYER.attackRange >= e.x || PLAYER.x - PLAYER.attackRange >= e.x + e.width) && PLAYER.y === e.y) {
@@ -228,8 +233,6 @@ function drawFrame() {
 }
 
 function updatePlayer(paddle, x, y, width, height) {
-    /*FIXME: Починить коллизию с правым краем платформы!*/
-
     // Проверка коллизии с платформой (наступил сверху)
     if ((PLAYER.y + PLAYER.height > y && PLAYER.y <= y) && (x <= PLAYER.x && PLAYER.x <= x + width) && (PLAYER.x <= x + width)) {
         PLAYER.y = y - 2 * height;
@@ -297,14 +300,19 @@ function play() {
         }
     }
     if (PLAYER.moveType === 'left') {
+        PLAYER.img.src = '/img/Player-Left.png';
         PLAYER.x -= PLAYER.moveSpeed;
     }
     if (PLAYER.moveType === 'right') {
+        PLAYER.img.src = '/img/Player-Right.png';
         PLAYER.x += PLAYER.moveSpeed;
         PLAYER.score++;
     }
     if(PLAYER.moveType === 'down') {
         PLAYER.y += PLAYER.fallSpeed*7;
+        PLAYER.score++;
+    }
+    if(PLAYER.moveType === 'none') {
         PLAYER.score++;
     }
 
