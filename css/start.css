@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script&family=Poppins&family=Work+Sans&display=swap');
+
+:root {
+    font-family: 'Poppins', sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+.title {
+    margin-bottom: 35px;
+}
+
+.hello {
+    font-size: 1.5em;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+}
+
+.controls_list {
+    list-style: none;
+    margin-bottom: 150px;
+}
+
+.controls_list .item {
+    font-size: 1.1em;
+    margin-top: 15px;
+}
+
+.start {
+    font-size: 1.5em;
+
+    display: flex;
+    justify-content: center;
+}
+
+.high_score {
+    margin-right: 200px;
+}
+
+.start_button a {
+    text-decoration: none;
+    color: black;
+    background-color: greenyellow;
+
+    padding: 15px;
+
+    border-radius: 15px;
+}

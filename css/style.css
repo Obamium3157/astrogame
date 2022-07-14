@@ -3,3 +3,8 @@
     justify-content: center;
     margin-top: 50px;
 }
+
+#canvas {
+    background-color: gray;
+    background-image: url(/img/Background.png);
+}

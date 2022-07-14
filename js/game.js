@@ -6,7 +6,7 @@ const canvasContext = canvas.getContext('2d');
 const GAME = {
     width: 1000,
     height: 600,
-    background: 'gray',
+    background: new Image(),
     isOver: false,
 }
 
@@ -20,11 +20,22 @@ const PLAYER = {
     canJump: true,
     isInAir: false,
     jump_pos: 0,
-    jumpLength: 325,
+    jumpLength: 250,
     background: "pink",
     moveType: 'none',
     attackRange: 70,
     score: 0,
+    high_score: localStorage.getItem('high'),
+    img: new Image(),
+    imgSrc: '/img/Player-Right.png',
+}
+PLAYER.img.src = PLAYER.imgSrc;
+
+const PLAYER_MOVE = {
+    img: new Image(),
+    imgIsLoad: false,
+    count: 0,
+    size: 50,
 }
 
 const PADDLE_LAYOUT = {
@@ -60,6 +71,8 @@ class Enemy {
         this.width = PLAYER.width;
         this.height = PLAYER.height;
         this.color = 'red';
+        this.img = new Image();
+        this.imgSrc = '/img/Enemy1.png';
 
         this.hp = 1;
         this.isAlive = true;
@@ -90,6 +103,7 @@ paddles.push(secondPaddle);
 paddles.push(thirdPaddle);
 paddles.push(new Paddle());
 
+initAnimation();
 initEventListener();
 play();
 
@@ -100,6 +114,13 @@ function getRandomHeight() {
 
 function generateEnemy() {
     return Math.floor(Math.random() * 2) === 0;
+}
+
+function initAnimation() {
+    PLAYER_MOVE.img.src = 'img/Player.png';
+    PLAYER_MOVE.img.onload = () => {
+        PLAYER_MOVE.imgIsLoad = true;
+    }
 }
 
 function initEventListener() {
@@ -136,19 +157,15 @@ function physics() {
     PLAYER.y += PLAYER.fallSpeed;
 }
 
-function drawBackground() {
-    canvasContext.fillStyle = GAME.background;
-    canvasContext.fillRect(0, 0, GAME.width, GAME.height);
-}
-
 function drawPlayer() {
-    canvasContext.fillStyle = PLAYER.background;
-    canvasContext.fillRect(PLAYER.x, PLAYER.y, PLAYER.width, PLAYER.height);
+    // canvasContext.fillStyle = PLAYER.background;
+    canvasContext.drawImage(PLAYER.img, PLAYER.x, PLAYER.y);
+    // canvasContext.fillRect(PLAYER.x, PLAYER.y, PLAYER.width, PLAYER.height);
 }
 
 function drawPaddle() {
     for(let i = 0; i < paddles.length; i++) {
-        let paddle = paddles[i]
+        let paddle = paddles[i];
         canvasContext.fillStyle = paddle.color;
         canvasContext.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
     }
@@ -160,12 +177,14 @@ function drawEnemy() {
 
         if(paddle.hasEnemy) {
             let e = new Enemy(paddle.x + paddle.width / 2, paddle.y - PLAYER.height);
+            e.img.src = e.imgSrc;
+
             if(e.isAlive) {
-                canvasContext.fillStyle = e.color;
-                canvasContext.fillRect(e.x, e.y, e.width, e.height);
+                canvasContext.drawImage(e.img, e.x, e.y);
                 updateEnemy(e.x, e.y, e.width, e.height);
 
                 if(PLAYER.moveType === 'punch' && (PLAYER.x + PLAYER.width + PLAYER.attackRange >= e.x || PLAYER.x - PLAYER.attackRange >= e.x + e.width) && PLAYER.y === e.y) {
+
                     e.hp--;
                     console.log(e.hp);
                     if(e.hp <= 0 && Math.floor(Math.random() * 5) === 0) {
@@ -194,14 +213,19 @@ function updateEnemy(x, y, width, height) {
 }
 
 function drawScore() {
-    canvasContext.fillStyle = 'white';
+    canvasContext.fillStyle = 'yellow';
     canvasContext.font = '32px Poppins';
     canvasContext.fillText(PLAYER.score, 20, 50);
 }
 
+function drawAnimation() {
+    if(PLAYER_MOVE.imgIsLoad) {
+        canvasContext.drawImage(PLAYER_MOVE, PLAYER.x, PLAYER.y);
+    }
+}
+
 function drawFrame() {
     canvasContext.clearRect(0, 0, GAME.width, GAME.height);
-    drawBackground();
     drawPlayer();
     drawPaddle();
     drawEnemy();
@@ -209,8 +233,6 @@ function drawFrame() {
 }
 
 function updatePlayer(paddle, x, y, width, height) {
-    /*FIXME: Починить коллизию с правым краем платформы!*/
-
     // Проверка коллизии с платформой (наступил сверху)
     if ((PLAYER.y + PLAYER.height > y && PLAYER.y <= y) && (x <= PLAYER.x && PLAYER.x <= x + width) && (PLAYER.x <= x + width)) {
         PLAYER.y = y - 2 * height;
@@ -251,6 +273,7 @@ function updatePlayer(paddle, x, y, width, height) {
 
 function play() {
     if(GAME.isOver) {
+        window.open('start.html');
         return;
     }
     for(let i = 0; i < paddles.length; i++) {
@@ -271,21 +294,35 @@ function play() {
             PLAYER.canJump = false
             PLAYER.y -= 25;
             PLAYER.jump_pos += 25;
+            PLAYER.score++;
         }
         if (PLAYER.jump_pos === PLAYER.jumpLength && PLAYER.canJump) {
             PLAYER.jump_pos = 0;
         }
     }
     if (PLAYER.moveType === 'left') {
+        PLAYER.img.src = '/img/Player-Left.png';
         PLAYER.x -= PLAYER.moveSpeed;
     }
     if (PLAYER.moveType === 'right') {
+        PLAYER.img.src = '/img/Player-Right.png';
         PLAYER.x += PLAYER.moveSpeed;
         PLAYER.score++;
     }
     if(PLAYER.moveType === 'down') {
         PLAYER.y += PLAYER.fallSpeed*7;
+        PLAYER.score++;
     }
+    if(PLAYER.moveType === 'none') {
+        PLAYER.img.src = '/img/Player-Right.png';
+        PLAYER.score++;
+    }
+
+    if(PLAYER.score > PLAYER.high_score) {
+        PLAYER.high_score = PLAYER.score;
+        localStorage.setItem('high', PLAYER.high_score);
+    }
+
 
     requestAnimationFrame(play)
 }

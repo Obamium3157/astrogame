@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/start.css">
+    <title>Start</title>
+</head>
+<body>
+    <h1 class="title">Welcome to <span class="hello">Astrobot</span> game!</h1>
+    <h1>Controls</h1>
+
+    <div class="controls">
+        <ul class="controls_list">
+            <li class="item">[W] - jump</li>
+            <li class="item">[A] - go left</li>
+            <li class="item">[S] - fall down with force</li>
+            <li class="item">[D] - go right</li>
+            <li class="item">[Space] - make your enemies suffer</li>
+        </ul>
+    </div>
+
+    <div class="start">
+        <div id="high" class="high_score"></div>
+        <div class="start_button">
+            <a href="index.html">Start playing</a>
+        </div>
+    </div>
+
+<script>
+    var highScore = parseInt(localStorage.getItem('high'));
+    if(!highScore) {
+        localStorage.setItem('high', 0);
+        document.getElementById('high').innerHTML = 'High score: ' + highScore;
+    }
+    else {
+        document.getElementById('high').innerHTML = 'High score: ' + highScore;
+    }
+</script>
+</body>
+</html>
